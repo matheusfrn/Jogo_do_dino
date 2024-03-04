@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercício do Alien</title>
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
+    <style>
+        body {
+            display: flex; 
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        const larguraJogo = 600; //coloquei a largura da tela do jogo
+        const alturaJogo = 800; //coloquei a altura da tela do jogo
+
+        const config = { //iniciei a configuração do jogo
+            type: Phaser.AUTO,
+            width: larguraJogo,
+            height: alturaJogo,
+
+            physics: { //configurei a física do jogo
+                default: 'arcade', //iniciei uma física específica
+                arcade: {
+                    gravity: { y: 300 },//coloquei gravidade
+                    debug: true //ativei o debug para saber os limites da física do jogo
+
+                }
+            },
+            scene: { //iniciei a cena
+                preload: preload,
+                create: create,
+                update: update
+            }
+        };
+
+
+        const game = new Phaser.Game(config);
+        var dino; //varíavel dinossauro
+        var teclado;//váriavel teclado
+        var moeda;//váriavel moeda
+        var pontuacao = 0;//váriavel pontuacao
+        var placar;//váriavel placar
+        var player;
+
+        function preload() { //carreguei as imagens
+            this.load.image('background', 'assets/fundo.png');
+            this.load.image('dino', 'assets/dino.png', { frameWidth: 24, frameHeight: 24 }); // carreguei a spritesheet
+            this.load.image('moeda', 'assets/moeda.png');
+        }
+
+        function create() {
+
+            this.add.image(400, 300, 'background').setScale(1) // adicionei e determinei o tamanho do fundo
+            player = this.physics.add.sprite(100, 450, 'dino');
+
+player.setBounce(0.2);
+player.setCollideWorldBounds(true);
+
+
+            this.add.image(larguraJogo / 2, alturaJogo / 2, 'background'); //adicionei a imagem e configurei a localização
+
+            fogo = this.add.sprite(0, 0, 'turbo');//adicionei a sprite e configurei a localização
+            fogo.setVisible(false);//deixei o fogo invisível
+            dino = this.physics.add.sprite(larguraJogo / 2, 0, 'dino').setScale(0.05);//adicionei física ao alien
+            dino.setCollideWorldBounds(true);//adicionei colisão ao alien
+
+            teclado = this.input.keyboard.createCursorKeys();//configurei as setas do teclado para controlar a 
+
+            moeda = this.physics.add.sprite(larguraJogo / 2, 0, 'moeda');//adicionei física à moeda
+            moeda.setCollideWorldBounds(true);//não sei
+            moeda.setBounce(0.7);//coloquei o kick da moeda
+            moeda.setScale(0.15)
+
+            placar = this.add.text(100, 200, 'Moedas:' + pontuacao, { fontSize: '30px', fill: '#495613' });//adicionei o placar
+
+            this.physics.add.overlap(dino, moeda, coletarMoeda);//configurei o alien para pegar a moeda quando passar por cima dela
+        }
+
+        function update() { //configurei as teclas do teclado para controlar o alien
+            if (teclado.left.isDown) {
+                dino.setVelocityX(-150);
+            } else if (teclado.right.isDown) {
+                dino.setVelocityX(150);
+            } else {
+                dino.setVelocityX(0);
+            }
+
+            if (teclado.up.isDown) {
+                dino.setVelocityY(-150);
+            }
+
+            if (teclado.down.isUp) {
+                semTurbo();
+            }
+        }
+
+        function ativarTurbo() {//Ativar o turbo
+            fogo.setVisible(true);
+        }
+
+        function semTurbo() { //desativar o turbo
+            fogo.setVisible(false);
+        }
+
+        function coletarMoeda(dino, moeda) { //coletar moedas
+            moeda.disableBody(true, true);
+            pontuacao += 1;
+            placar.setText('Moedas:' + pontuacao);
+            var posicaoMoeda_Y = Phaser.Math.RND.between(50, 650); 
+            moeda.enableBody(true, posicaoMoeda_Y, 100, true, true);
+
+            while (pontuacao < 5){
+                continuarJogo
+            }
+
+            if (pontuacao > 5){
+                this.scene.start('final') //início da cena
+            }
+        }
+    </script>
+</body>
+
+</html>
